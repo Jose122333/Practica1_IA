@@ -15,7 +15,9 @@ public class Practica1_IA {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        
+        System.out.println("Jose chupamela matao. Asi se trabaja");
+              
     }
     
 }
