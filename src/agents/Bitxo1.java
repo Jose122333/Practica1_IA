@@ -22,6 +22,7 @@ public class Bitxo1 extends Agent {
     @Override
     public void inicia()
     {
+        
         setAngleVisors(10);
         setDistanciaVisors(350);
         setVelocitatLineal(5);
@@ -33,6 +34,10 @@ public class Bitxo1 extends Agent {
     public void avaluaComportament()
     {
         boolean enemic;
+        int puntosRojos;
+            
+        Punt[] posicionesRojos;
+
 
         enemic = false;
 
@@ -64,6 +69,16 @@ public class Bitxo1 extends Agent {
                 }
             } else {
                 endavant();
+                //ESTO YA ES NUESTRO
+                if(estat.nbonificacions > 0){
+                    puntosRojos = quedanPuntos();
+                    if(puntosRojos>0){
+                        posicionesRojos = new Punt[puntosRojos];
+                        obtenerPuntos(posicionesRojos);
+                        
+
+                    }
+                }
                 if (estat.veigEnemic)
                 {
                     if (estat.sector == 2 || estat.sector == 3)
@@ -155,4 +170,37 @@ public class Bitxo1 extends Agent {
             minim = estat.distanciaVisors[DRETA];
         return minim;
     }
+    
+    int quedanPuntos(){
+     int i = 0;
+     int ret = 0;
+     while(i< estat.nbonificacions){
+         if(estat.bonificacions[i].tipus==Agent.PUNTS){
+            ret++;
+            
+         }i++;
+     }
+     return ret;
+     
+    }
+    
+    Punt[] obtenerPuntos(Punt[] posicionesRojos){
+        
+     int i = 0;
+     while(i< estat.nbonificacions){
+         if(estat.bonificacions[i].tipus==Agent.PUNTS){
+            posicionesRojos[i]=estat.bonificacions[i].posicio;
+         }i++;
+     }
+     return posicionesRojos;        
+    }
+    
+    Punt[] calcularDistancias(Punt[] posicionesRojos){
+        for(int i = 0; i<posicionesRojos.length; i++){
+           posicionesRojos[i].x = posicionesRojos[i].x - estat.posicio.x;
+           posicionesRojos[i].y = posicionesRojos[i].y - estat.posicio.y;
+        }
+        return posicionesRojos;
+    }
+    
 }
