@@ -78,9 +78,8 @@ public class Bitxo1 extends Agent {
                         distancias = new double[puntosRojos];
                         posicionesRojos = obtenerPuntos(posicionesRojos);
                         distancias = calcularDistancias(posicionesRojos);
-                        mira(estat.bonificacions[0].posicio.x,estat.bonificacions[0].posicio.y);
+                        mira(estat.posicio.x-estat.bonificacions[0].posicio.x,estat.posicio.y-estat.bonificacions[0].posicio.y);
                         endavant();
-//
                     }
                 }
 //                if (estat.veigEnemic)
@@ -207,6 +206,15 @@ public class Bitxo1 extends Agent {
            puntos[i]=posicionesRojos[i].distancia(estat.posicio);
         }
         return puntos;
+    }
+    
+    int distanciaManhattanX(){
+        return Math.abs(estat.posicio.x-estat.bonificacions[0].posicio.x);
+    }
+    
+    
+    int distanciaManhattanY(){
+        return Math.abs(estat.posicio.y-estat.bonificacions[0].posicio.y);
     }
 
 }
