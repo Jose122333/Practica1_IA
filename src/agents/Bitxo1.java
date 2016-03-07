@@ -75,6 +75,8 @@ public class Bitxo1 extends Agent {
                     if(puntosRojos>0){
                         posicionesRojos = new Punt[puntosRojos];
                         obtenerPuntos(posicionesRojos);
+                        calcularDistancias(posicionesRojos);
+                        //Calcular mínimo distancias del array posiciones Rojos
                         
 
                     }
