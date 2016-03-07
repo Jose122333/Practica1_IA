@@ -1,7 +1,8 @@
 package agents;
 
 // Exemple de Bitxo
-
+import java.util.Arrays;
+import java.util.Comparator;
 public class Bitxo1 extends Agent {
 
     static final int PARET = 0;
@@ -39,7 +40,6 @@ public class Bitxo1 extends Agent {
         Punt[] posicionesRojos;
         double[] distancias;
 
-
         enemic = false;
 
         int dir;
@@ -71,23 +71,25 @@ public class Bitxo1 extends Agent {
             } else {
                 endavant();
                 //ESTO YA ES NUESTRO
-                if(estat.nbonificacions > 0){
+                if(estat.nbonificacions > 0){   
                     puntosRojos = quedanPuntos();
                     if(puntosRojos>0){
                         posicionesRojos = new Punt[puntosRojos];
                         distancias = new double[puntosRojos];
                         posicionesRojos = obtenerPuntos(posicionesRojos);
                         distancias = calcularDistancias(posicionesRojos);
-                        
+                        mira(estat.bonificacions[0].posicio.x,estat.bonificacions[0].posicio.y);
+                        endavant();
+//
                     }
                 }
-                if (estat.veigEnemic)
-                {
-                    if (estat.sector == 2 || estat.sector == 3)
-                        mira(estat.posicioEnemic.x, estat.posicioEnemic.y);
-                    else if (estat.sector == 1)  dreta();
-                    else  esquerra();
-                }
+//                if (estat.veigEnemic)
+//                {
+//                    if (estat.sector == 2 || estat.sector == 3)
+//                        mira(estat.posicioEnemic.x, estat.posicioEnemic.y);
+//                    else if (estat.sector == 1)  dreta();
+//                    else  esquerra();
+//                }
 
                 if (estat.objecteVisor[CENTRAL] == NAU && !estat.disparant && estat.impactesRival < 5)
                 {
@@ -206,5 +208,5 @@ public class Bitxo1 extends Agent {
         }
         return puntos;
     }
-    
+
 }
