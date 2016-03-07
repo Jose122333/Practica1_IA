@@ -37,6 +37,7 @@ public class Bitxo1 extends Agent {
         int puntosRojos;
             
         Punt[] posicionesRojos;
+        double[] distancias;
 
 
         enemic = false;
@@ -74,11 +75,10 @@ public class Bitxo1 extends Agent {
                     puntosRojos = quedanPuntos();
                     if(puntosRojos>0){
                         posicionesRojos = new Punt[puntosRojos];
-                        obtenerPuntos(posicionesRojos);
-                        calcularDistancias(posicionesRojos);
-                        //Calcular mínimo distancias del array posiciones Rojos
+                        distancias = new double[puntosRojos];
+                        posicionesRojos = obtenerPuntos(posicionesRojos);
+                        distancias = calcularDistancias(posicionesRojos);
                         
-
                     }
                 }
                 if (estat.veigEnemic)
@@ -197,12 +197,14 @@ public class Bitxo1 extends Agent {
      return posicionesRojos;        
     }
     
-    Punt[] calcularDistancias(Punt[] posicionesRojos){
+    
+    
+    double[] calcularDistancias(Punt[] posicionesRojos){
+        double[] puntos= new double[posicionesRojos.length];
         for(int i = 0; i<posicionesRojos.length; i++){
-           posicionesRojos[i].x = posicionesRojos[i].x - estat.posicio.x;
-           posicionesRojos[i].y = posicionesRojos[i].y - estat.posicio.y;
+           puntos[i]=posicionesRojos[i].distancia(estat.posicio);
         }
-        return posicionesRojos;
+        return puntos;
     }
     
 }
