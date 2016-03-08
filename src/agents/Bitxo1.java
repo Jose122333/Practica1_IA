@@ -165,41 +165,7 @@ public class Bitxo1 extends Agent {
         return minim;
     }
     
-    int quedanPuntos(){
-     int i = 0;
-     int ret = 0;
-     while(i< estat.nbonificacions){
-         if(estat.bonificacions[i].tipus==Agent.PUNTS){
-            ret++;
-            
-         }i++;
-     }
-     return ret;
-     
-    }
-    
-    Punt[] obtenerPuntos(Punt[] posicionesRojos){
-        
-     int i = 0;
-     while(i< estat.nbonificacions){
-         if(estat.bonificacions[i].tipus==Agent.PUNTS){
-            posicionesRojos[i]=estat.bonificacions[i].posicio;
-         }i++;
-     }
-     return posicionesRojos;        
-    }
-    
-    
-    
-    double[] calcularDistancias(Punt[] posicionesRojos){
-        double[] puntos= new double[posicionesRojos.length];
-        for(int i = 0; i<posicionesRojos.length; i++){
-           puntos[i]=posicionesRojos[i].distancia(estat.posicio);
-        }
-        return puntos;
-    }
-   
-    //Devuelve el punto con la distancia mínima en bonificacions, sin contar las minas
+       //Devuelve el punto con la distancia mínima en bonificacions, sin contar las minas
     Punt distanciaMinima(){
         int minimo;
         
