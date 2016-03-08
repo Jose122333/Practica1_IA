@@ -34,15 +34,9 @@ public class Bitxo1 extends Agent {
     @Override
     public void avaluaComportament()
     {
-        boolean enemic;
-        int puntosRojos;
-            
-        Punt[] posicionesRojos;
-        double[] distancias;
+       int esperaBusq=0;
+       Punt puntoCercano;
 
-        enemic = false;
-
-        int dir;
 
         estat = estatCombat();
         
@@ -70,18 +64,14 @@ public class Bitxo1 extends Agent {
                 }
             } else {
                 endavant();
-                //ESTO YA ES NUESTRO
-                if(estat.nbonificacions > 0){   
-                    puntosRojos = quedanPuntos();
-                    if(puntosRojos>0){
-                        posicionesRojos = new Punt[puntosRojos];
-                        distancias = new double[puntosRojos];
-                        posicionesRojos = obtenerPuntos(posicionesRojos);
-                        distancias = calcularDistancias(posicionesRojos);
-                        mira(estat.posicio.x-estat.bonificacions[0].posicio.x,estat.posicio.y-estat.bonificacions[0].posicio.y);
-                        endavant();
-                    }
+                 if((esperaBusq>0)){
+                    esperaBusq--;
+                } else {
+                    puntoCercano=distanciaMinima();
+                    mira(puntoCercano.x,puntoCercano.y);
+                    esperaBusq=100;
                 }
+                
 //                if (estat.veigEnemic)
 //                {
 //                    if (estat.sector == 2 || estat.sector == 3)
@@ -106,7 +96,6 @@ public class Bitxo1 extends Agent {
                 if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA] < 45) {
                     sensor += 4;
                 }
-
                 switch (sensor) {
                     case 0:
                         endavant();
@@ -140,6 +129,8 @@ public class Bitxo1 extends Agent {
 //                        }
                         break;
                 }
+                
+               
 
             }
         }
@@ -207,14 +198,48 @@ public class Bitxo1 extends Agent {
         }
         return puntos;
     }
-    
-    int distanciaManhattanX(){
-        return Math.abs(estat.posicio.x-estat.bonificacions[0].posicio.x);
+   
+    //Devuelve el punto con la distancia mínima en bonificacions, sin contar las minas
+    Punt distanciaMinima(){
+        int minimo;
+        
+        
+        int [] distancias = new int [estat.bonificacions.length];
+        
+        //Copiar las distancias entre la posición actual y las bonificaciones
+        for(int i=0;i<distancias.length;i++){
+            if(estat.bonificacions[i].tipus!=5){
+            distancias[i]=(int)estat.posicio.distancia(estat.bonificacions[i].posicio); 
+            } else{
+                distancias[i]= 1000000;
+            }
+                
+        }
+        minimo = devolverMinimo(distancias);
+        return estat.bonificacions[minimo].posicio;      
+    }
+    //Devuelve el valor mínimo del array introducido
+    int devolverMinimo(int[] distancias){
+        int minimo;
+        int indice = 0;
+        int indiceMin = 0;
+        if(distancias.length>0){
+            minimo = distancias[0];
+            while(indice<distancias.length){
+                if(distancias[indice]<minimo){
+                    minimo = distancias[indice];
+                    indiceMin = indice;
+                }
+                indice++;
+            }
+        }
+        return indiceMin;
     }
     
     
-    int distanciaManhattanY(){
-        return Math.abs(estat.posicio.y-estat.bonificacions[0].posicio.y);
-    }
-
+    //Hay que hacer una función que mire si hay una pared
+    //entre el bicho y el recurso y si la hay descartarlo
+    //y no añadirlo al array
+    
+    
 }
