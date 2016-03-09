@@ -26,8 +26,8 @@ public class Bitxo1 extends Agent {
         
         setAngleVisors(10);
         setDistanciaVisors(350);
-        setVelocitatLineal(5);
-        setVelocitatAngular(6);
+        setVelocitatLineal(3);
+        setVelocitatAngular(9);
         espera = 0;
     }
 
@@ -60,16 +60,22 @@ public class Bitxo1 extends Agent {
                     gira(20); // 20 graus
                     if (hiHaParedDavant(20)) enrere();
                     else endavant();
-                    espera=3;
+                    espera=5;
                 }
             } else {
                 endavant();
-                 if((esperaBusq>0)){
+                 if((esperaBusq > 0)){
                     esperaBusq--;
                 } else {
                     puntoCercano=distanciaMinima();
+                    if(!paredEnMedio(puntoCercano)){
                     mira(puntoCercano.x,puntoCercano.y);
-                    esperaBusq=100;
+                    esperaBusq=50;
+                    }else {
+                        esperaBusq=150;
+                    }
+                    //esperaBusq=50;
+                    
                 }
                 
 //                if (estat.veigEnemic)
@@ -102,6 +108,7 @@ public class Bitxo1 extends Agent {
                         break;
                     case 1:
                     case 3:  // esquerra bloquejada
+                      
                         dreta();
                         break;
                     case 4:
@@ -179,7 +186,6 @@ public class Bitxo1 extends Agent {
             } else{
                 distancias[i]= 1000000;
             }
-                
         }
         minimo = devolverMinimo(distancias);
         return estat.bonificacions[minimo].posicio;      
@@ -187,19 +193,29 @@ public class Bitxo1 extends Agent {
     //Devuelve el valor mínimo del array introducido
     int devolverMinimo(int[] distancias){
         int minimo;
-        int indice = 0;
         int indiceMin = 0;
         if(distancias.length>0){
             minimo = distancias[0];
-            while(indice<distancias.length){
-                if(distancias[indice]<minimo){
-                    minimo = distancias[indice];
-                    indiceMin = indice;
+           for(int i =0;i<distancias.length;i++){
+                if(distancias[i]<minimo){
+                    minimo = distancias[i];
+                    indiceMin = i;
                 }
-                indice++;
             }
         }
         return indiceMin;
+    }
+       //Pared entre el bicho y el recurso
+    boolean paredEnMedio(Punt p) {
+        if (estat.objecteVisor[ESQUERRA] == PARET && estat.distanciaVisors[ESQUERRA] < estat.posicio.distancia(p)) {
+            return true;
+        } else if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] < estat.posicio.distancia(p)) {
+            return true;
+        } else if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA] < estat.posicio.distancia(p)) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     
