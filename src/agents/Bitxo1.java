@@ -57,7 +57,14 @@ public class Bitxo1 extends Agent {
                 }
                 else // hi ha un obstacle, gira i parteix
                 {
+//                    if(isAturat() && estat.hyperespaiDisponibles >=0){
+//                        hyperespai();
+//                    }
+                     if(isDreta()){
                     gira(20); // 20 graus
+                    } else {
+                        gira(-20);
+                    }
                     if (hiHaParedDavant(20)) enrere();
                     else endavant();
                     espera=5;
@@ -70,21 +77,25 @@ public class Bitxo1 extends Agent {
                     puntoCercano=distanciaMinima();
                     if(!paredEnMedio(puntoCercano)){
                     mira(puntoCercano.x,puntoCercano.y);
-                    esperaBusq=50;
+                    //esperaBusq=50;
                     }else {
-                        esperaBusq=150;
+                        espera = 8;
                     }
                     //esperaBusq=50;
                     
                 }
-                
-//                if (estat.veigEnemic)
-//                {
+                 
+                  //Pasar modo ataque
+                if (estat.veigEnemic){
+                    if(estat.balaEnemigaDetectada && estat.impactesRebuts >= 3 && estat.posicio.distancia(estat.posicioBalaEnemiga) < 10
+                            && estat.hyperespaiDisponibles >0){
+                        hyperespai();
+                    }
 //                    if (estat.sector == 2 || estat.sector == 3)
 //                        mira(estat.posicioEnemic.x, estat.posicioEnemic.y);
 //                    else if (estat.sector == 1)  dreta();
 //                    else  esquerra();
-//                }
+                }
 
                 if (estat.objecteVisor[CENTRAL] == NAU && !estat.disparant && estat.impactesRival < 5)
                 {
@@ -124,16 +135,16 @@ public class Bitxo1 extends Agent {
                         distancia = minimaDistanciaVisors();
 
                         if (distancia < 15) {
-                            espera = 8;
+                            espera = 15;
                             enrere();
                         } else // gira aleatòriament a la dreta o a l'esquerra
-//                        if (distancia < 50) {
-//                            if (Math.random() * 500 < 250) {
-//                                dreta();
-//                            } else {
+                        if (distancia < 50) {
+                            if (Math.random() * 500 < 250) {
+                                dreta();
+                            } else {
                                 esquerra();
-//                            }
-//                        }
+                            }
+                        }
                         break;
                 }
                 
@@ -207,6 +218,7 @@ public class Bitxo1 extends Agent {
     }
        //Pared entre el bicho y el recurso
     boolean paredEnMedio(Punt p) {
+        
         if (estat.objecteVisor[ESQUERRA] == PARET && estat.distanciaVisors[ESQUERRA] < estat.posicio.distancia(p)) {
             return true;
         } else if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] < estat.posicio.distancia(p)) {
