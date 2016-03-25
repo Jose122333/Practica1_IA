@@ -3,104 +3,110 @@ package agents;
 // Exemple de Bitxo
 import java.util.Arrays;
 import java.util.Comparator;
+
 public class Bitxo1 extends Agent {
 
     static final int PARET = 0;
-    static final int NAU   = 1;
-    static final int RES   = -1;
+    static final int NAU = 1;
+    static final int RES = -1;
 
     static final int ESQUERRA = 0;
-    static final int CENTRAL  = 1;
-    static final int DRETA    = 2;
+    static final int CENTRAL = 1;
+    static final int DRETA = 2;
 
     Estat estat;
-    int espera =0;
+    int espera = 0;
+    int esperaBusq = 0;
+    int vida = 0;
 
     public Bitxo1(Agents pare) {
-        super(pare, "Bitxo1", "imatges/robotank1.gif");
+        super(pare, "Bitxo1", "imatges/soni.gif");
     }
-  
+
     @Override
-    public void inicia()
-    {
-        
+    public void inicia() {
+
         setAngleVisors(10);
-        setDistanciaVisors(350);
-        setVelocitatLineal(3);
-        setVelocitatAngular(9);
+        setDistanciaVisors(400);
+        setVelocitatLineal(4);
+        setVelocitatAngular(3);
+        estat = estatCombat();
         espera = 0;
+        esperaBusq = 0;
     }
 
     @Override
-    public void avaluaComportament()
-    {
-       int esperaBusq=0;
-       Punt puntoCercano;
-
-
+    public void avaluaComportament() {
         estat = estatCombat();
+        vida = estat.impactesRebuts;
+        Punt puntoCercano;
         
+                    if(estat.temps < 10 && estat.punts > estat.puntsRival && estat.hyperespaiDisponibles > 0 && !estat.hiperEspaiActiu ){
+                hyperespai();
+            }
+
+
         if (espera > 0) {
             espera--;
-        }
-        else
-        {
+        } else {
             atura();
+            //Mirar si vamos ganando
+
 
             if (estat.enCollisio) // situació de nau bloquejada
             {
+//                colisionPermanente++;
+//                if(colisionPermanente > 10){
+//                    hyperespai();
+//                }
                 // si veu la nau, dispara
-
-                if (estat.objecteVisor[CENTRAL] == NAU && estat.impactesRival < 5)
-                {
+                if (estat.objecteVisor[CENTRAL] == NAU && estat.impactesRival < 5) {
                     dispara();   //bloqueig per nau, no giris dispara
-                }
-                else // hi ha un obstacle, gira i parteix
+                } else // hi ha un obstacle, gira i parteix
                 {
 //                    if(isAturat() && estat.hyperespaiDisponibles >=0){
 //                        hyperespai();
 //                    }
-                     if(isDreta()){
-                    gira(20); // 20 graus
+                    gira(20);
+                    if (hiHaParedDavant(30)) {
+                        enrere();
                     } else {
-                        gira(-20);
+                        endavant();
                     }
-                    if (hiHaParedDavant(20)) enrere();
-                    else endavant();
-                    espera=5;
+                    espera = 3;
                 }
             } else {
-                endavant();
-                 if((esperaBusq > 0)){
-                    esperaBusq--;
-                } else {
-                    puntoCercano=distanciaMinima();
-                    if(!paredEnMedio(puntoCercano)){
-                    mira(puntoCercano.x,puntoCercano.y);
-                    //esperaBusq=50;
-                    }else {
-                        espera = 8;
-                    }
-                    //esperaBusq=50;
+                                setVelocitatLineal(4);
+                setVelocitatAngular(3);
+                
+                //Pasar modo ataque
+                if (estat.veigEnemic) {
                     
+                    if (estat.sector == 2 || estat.sector == 3)
+                        mira(estat.posicioEnemic.x, estat.posicioEnemic.y);
+                    
+                    if (estat.objecteVisor[CENTRAL] == NAU && estat.impactesRival < 5) {
+                    if(estat.perforadores > 0){
+                        perforadora();
+                    }else  {
+                        dispara();
+                    } 
                 }
-                 
-                  //Pasar modo ataque
-                if (estat.veigEnemic){
-                    if(estat.balaEnemigaDetectada && estat.impactesRebuts >= 3 && estat.posicio.distancia(estat.posicioBalaEnemiga) < 10
-                            && estat.hyperespaiDisponibles >0){
+                    
+                    if (estat.balaEnemigaDetectada && estat.impactesRebuts >= 3 && estat.hyperespaiDisponibles > 0) {
                         hyperespai();
+                    } 
+                    if (estat.balaEnemigaDetectada && estat.impactesRebuts < 3 ) activaEscut();
+                    
+                        
+                 // si no ve el enemigo 
+                } else {
+                    //Si te disparan por la espalda
+                    if(vida < estat.impactesRebuts){
+                        gira(180);
                     }
-//                    if (estat.sector == 2 || estat.sector == 3)
-//                        mira(estat.posicioEnemic.x, estat.posicioEnemic.y);
-//                    else if (estat.sector == 1)  dreta();
-//                    else  esquerra();
                 }
 
-                if (estat.objecteVisor[CENTRAL] == NAU && !estat.disparant && estat.impactesRival < 5)
-                {
-                    dispara();
-                }
                 // Miram els visors per detectar els obstacles
                 int sensor = 0;
 
@@ -119,12 +125,13 @@ public class Bitxo1 extends Agent {
                         break;
                     case 1:
                     case 3:  // esquerra bloquejada
-                      
+                        setVelocitatAngular(9);
                         dreta();
                         break;
                     case 4:
                     case 6:  // dreta bloquejada
-                        esquerra();
+                        setVelocitatAngular(9);
+                        esquerra();                     
                         break;
                     case 5:
                         endavant();
@@ -134,81 +141,108 @@ public class Bitxo1 extends Agent {
                         double distancia;
                         distancia = minimaDistanciaVisors();
 
-                        if (distancia < 15) {
-                            espera = 15;
+                        if (distancia < 10) {
                             enrere();
-                        } else // gira aleatòriament a la dreta o a l'esquerra
-                        if (distancia < 50) {
-                            if (Math.random() * 500 < 250) {
-                                dreta();
+                            espera = 8;
+                        } else //Girar izquierda o derecha para no perder tiempo según los grados
+                        {
+                            if (estat.angle >= 0 || estat.angle <= 180) {
+                                setVelocitatAngular(9);
+                                
+                                gira(45);
+                                endavant();
+                                //esquerra();
                             } else {
-                                esquerra();
+                                
+                                 setVelocitatAngular(9);
+                                gira(-45);
+                                endavant();
+                                //dreta();
                             }
                         }
                         break;
                 }
+                if ((esperaBusq > 0)) {
+                    esperaBusq--;
+                } else {
+                    endavant();
+                    puntoCercano = distanciaMinima();
+                    if (!hiHaParedDavant((int) estat.posicio.distancia(puntoCercano))) {
+                        mira(puntoCercano.x, puntoCercano.y);
+                    } else esperaBusq = 8;
+                }
                 
-               
 
             }
         }
     }
 
-    boolean hiHaParedDavant(int dist)
-    {
+    boolean hiHaParedDavant(int dist) {
 
-       if (estat.objecteVisor[ESQUERRA]== PARET && estat.distanciaVisors[ESQUERRA]<=dist)
-           return true;
+        if (estat.objecteVisor[ESQUERRA] == PARET && estat.distanciaVisors[ESQUERRA] <= dist) {
+            return true;
+        }
 
-       if (estat.objecteVisor[CENTRAL ]== PARET && estat.distanciaVisors[CENTRAL ]<=dist)
-           return true;
+        if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] <= dist) {
+            return true;
+        }
 
-       if (estat.objecteVisor[DRETA   ]== PARET && estat.distanciaVisors[DRETA   ]<=dist)
-           return true;
+        if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA] <= dist) {
+            return true;
+        }
 
-       return false;
+        return false;
+    }
+    
+    boolean hayParedEntre(int dist) {
+        if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] <= dist) {
+            return true;
+        }
+                return false;
     }
 
-    double minimaDistanciaVisors()
-    {
+    double minimaDistanciaVisors() {
         double minim;
 
         minim = Double.POSITIVE_INFINITY;
-        if (estat.objecteVisor[ESQUERRA] == PARET)
+        if (estat.objecteVisor[ESQUERRA] == PARET) {
             minim = estat.distanciaVisors[ESQUERRA];
-        if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL]<minim)
+        }
+        if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] < minim) {
             minim = estat.distanciaVisors[CENTRAL];
-        if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA]<minim)
+        }
+        if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA] < minim) {
             minim = estat.distanciaVisors[DRETA];
+        }
         return minim;
     }
-    
-       //Devuelve el punto con la distancia mínima en bonificacions, sin contar las minas
-    Punt distanciaMinima(){
+
+    //Devuelve el punto con la distancia mínima en bonificacions, sin contar las minas
+    Punt distanciaMinima() {
         int minimo;
-        
-        
-        int [] distancias = new int [estat.bonificacions.length];
-        
+
+        int[] distancias = new int[estat.bonificacions.length];
+
         //Copiar las distancias entre la posición actual y las bonificaciones
-        for(int i=0;i<distancias.length;i++){
-            if(estat.bonificacions[i].tipus!=5){
-            distancias[i]=(int)estat.posicio.distancia(estat.bonificacions[i].posicio); 
-            } else{
-                distancias[i]= 1000000;
+        for (int i = 0; i < distancias.length; i++) {
+            if (estat.bonificacions[i].tipus != 5) {
+                distancias[i] = (int) estat.posicio.distancia(estat.bonificacions[i].posicio);
+            } else {
+                distancias[i] = 1000000;
             }
         }
         minimo = devolverMinimo(distancias);
-        return estat.bonificacions[minimo].posicio;      
+        return estat.bonificacions[minimo].posicio;
     }
+
     //Devuelve el valor mínimo del array introducido
-    int devolverMinimo(int[] distancias){
+    int devolverMinimo(int[] distancias) {
         int minimo;
         int indiceMin = 0;
-        if(distancias.length>0){
+        if (distancias.length > 0) {
             minimo = distancias[0];
-           for(int i =0;i<distancias.length;i++){
-                if(distancias[i]<minimo){
+            for (int i = 0; i < distancias.length; i++) {
+                if (distancias[i] < minimo) {
                     minimo = distancias[i];
                     indiceMin = i;
                 }
@@ -216,24 +250,4 @@ public class Bitxo1 extends Agent {
         }
         return indiceMin;
     }
-       //Pared entre el bicho y el recurso
-    boolean paredEnMedio(Punt p) {
-        
-        if (estat.objecteVisor[ESQUERRA] == PARET && estat.distanciaVisors[ESQUERRA] < estat.posicio.distancia(p)) {
-            return true;
-        } else if (estat.objecteVisor[CENTRAL] == PARET && estat.distanciaVisors[CENTRAL] < estat.posicio.distancia(p)) {
-            return true;
-        } else if (estat.objecteVisor[DRETA] == PARET && estat.distanciaVisors[DRETA] < estat.posicio.distancia(p)) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    
-    //Hay que hacer una función que mire si hay una pared
-    //entre el bicho y el recurso y si la hay descartarlo
-    //y no añadirlo al array
-    
-    
 }
