@@ -6,7 +6,7 @@ import java.util.Comparator;
 
 public class Bitxo1 extends Agent {
 
-    static final int PARET = 0;
+    static final int PARET = 0; //prueba
     static final int NAU = 1;
     static final int RES = -1;
 
@@ -39,7 +39,7 @@ public class Bitxo1 extends Agent {
         vida = estat.impactesRebuts;
         estat = estatCombat();
         Bonificacio bonificacionCercana;
-        
+
                     //Mirar si vamos ganando
             if (estat.temps == 5000 && estat.punts > estat.puntsRival && estat.hyperespaiDisponibles > 0 && !estat.hiperEspaiActiu) {
                 hyperespai();
@@ -93,7 +93,7 @@ public class Bitxo1 extends Agent {
                         activaEscut();
                     }
 
-                    // si no ve el enemigo 
+                    // si no ve el enemigo
                 } else{ //Si te disparan por la espalda
                 if (vida < estat.impactesRebuts) {
                     gira(180);
